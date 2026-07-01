@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>انهي صوره أحلى؟</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #faf8f3;
+    --bg-2: #f2efe6;
+    --card: #ffffff;
+    --accent: #c1622f;
+    --accent-dim: #d99a75;
+    --ink: #211d18;
+    --muted: #8c8578;
+    --line: #e7e2d6;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Tajawal', sans-serif;
+    font-weight:400;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    position:relative;
+    overflow-x:hidden;
+  }
+  .pattern{
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    opacity:0.06;
+    background-image:
+      linear-gradient(45deg, var(--accent) 1px, transparent 1px),
+      linear-gradient(-45deg, var(--accent) 1px, transparent 1px);
+    background-size: 46px 46px;
+  }
+
+  header{
+    width:100%; max-width:560px;
+    padding:64px 24px 30px;
+    text-align:center;
+    position:relative; z-index:1;
+  }
+  .eyebrow{
+    font-size:12px; letter-spacing:0.22em; color:var(--accent-dim);
+    text-transform:uppercase; margin-bottom:14px;
+  }
+  h1{
+    font-family:'Reem Kufi', sans-serif;
+    font-size:clamp(34px, 7vw, 48px);
+    font-weight:700;
+    color:var(--ink);
+    letter-spacing:0.01em;
+  }
+  .rule{
+    width:64px; height:1px; background:var(--accent-dim);
+    margin:20px auto 0;
+  }
+  .status{
+    font-size:11px; color:var(--muted); margin-top:18px;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .dot{
+    width:6px; height:6px; border-radius:50%; background:var(--accent);
+    position:relative;
+  }
+  .dot::after{
+    content:''; position:absolute; inset:-4px; border-radius:50%;
+    border:1px solid var(--accent); opacity:0.5;
+    animation: pulse 2s ease-out infinite;
+  }
+  .dot.offline{ background:#c8c2b3; }
+  .dot.offline::after{ display:none; }
+  @keyframes pulse{
+    0%{ transform:scale(0.6); opacity:0.6; }
+    100%{ transform:scale(1.8); opacity:0; }
+  }
+  .hint{
+    font-size:11px; color:var(--muted); margin-top:8px; max-width:360px;
+    margin-left:auto; margin-right:auto; line-height:1.6; display:none;
+  }
+
+  .leader-banner{
+    max-width:560px; width:100%; margin:0 auto; padding:0 24px;
+    text-align:center; position:relative; z-index:1;
+  }
+  .leader-banner-inner{
+    display:inline-flex; align-items:center; gap:8px;
+    border:1px solid var(--line); background:var(--card);
+    padding:8px 18px; font-size:12px; color:var(--muted);
+  }
+  .leader-banner-inner b{ color:var(--accent); font-weight:700; }
+
+  main{
+    width:100%; max-width:560px;
+    padding:24px 24px 40px;
+    position:relative; z-index:1;
+  }
+
+  .cards{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    padding:16px;
+    text-align:center;
+    transition: border-color .2s ease;
+  }
+  .card.leading{ border-color:var(--accent-dim); }
+
+  .frame{
+    padding:6px;
+    border:1px solid var(--line);
+    height:200px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--bg-2);
+  }
+  .photo{
+    max-width:100%;
+    max-height:100%;
+    width:auto;
+    height:auto;
+    object-fit:contain;
+    display:block;
+  }
+
+  .name{
+    font-family:'Reem Kufi', sans-serif;
+    font-size:17px; font-weight:500; margin-top:16px; color:var(--ink);
+  }
+
+  .bar-track{
+    height:2px; width:100%; background:var(--line); margin-top:12px;
+  }
+  .bar-fill{ height:100%; background:var(--accent); transition:width .4s ease; }
+
+  .row-meta{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-top:10px;
+  }
+  .count{
+    font-size:20px; font-weight:700; font-variant-numeric: tabular-nums; color:var(--accent);
+  }
+  .pct{
+    font-size:12px; color:var(--muted);
+  }
+
+  .vote-btn{
+    width:100%;
+    margin-top:16px;
+    background:none; border:1px solid var(--accent-dim); color:var(--accent);
+    font-family:'Tajawal', sans-serif; font-size:13px; font-weight:500;
+    padding:10px 12px; cursor:pointer;
+    transition: background .15s ease, color .15s ease, border-color .15s ease, transform .1s ease;
+    letter-spacing:0.03em;
+  }
+  .vote-btn:hover{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .vote-btn:active{ transform:scale(0.97); }
+  .vote-btn:disabled{ opacity:0.35; cursor:not-allowed; }
+  .vote-btn:disabled:hover{ background:none; color:var(--accent); border-color:var(--accent-dim); }
+
+  .voted-note{
+    text-align:center; font-size:12px; color:var(--muted);
+    margin-top:22px; letter-spacing:0.01em;
+  }
+
+  .actions{
+    display:flex; gap:8px; justify-content:center; margin-top:16px; flex-wrap:wrap;
+  }
+  .icon-btn{
+    background:none; border:1px solid var(--line); color:var(--muted);
+    font-family:'Tajawal', sans-serif; font-size:12px;
+    padding:8px 14px; cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .icon-btn:hover{ border-color:var(--accent-dim); color:var(--accent); }
+
+  section.stats{
+    margin-top:48px;
+  }
+  .stats-title{
+    font-family:'Reem Kufi', sans-serif;
+    font-size:13px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--accent-dim); margin-bottom:16px; text-align:center;
+  }
+  .stat-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:1px;
+    background:var(--line); border:1px solid var(--line);
+  }
+  .stat-cell{
+    background:var(--card); padding:20px 16px;
+  }
+  .stat-label{ font-size:11px; color:var(--muted); margin-bottom:8px; letter-spacing:0.02em; }
+  .stat-value{ font-size:22px; font-weight:700; font-variant-numeric: tabular-nums; color:var(--ink); }
+
+  footer{
+    color:var(--muted); font-size:11px; padding:24px 24px 44px; text-align:center;
+    max-width:560px; line-height:1.8; position:relative; z-index:1;
+  }
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background:var(--ink); color:var(--bg); font-size:13px; font-weight:500;
+    padding:10px 18px; opacity:0; pointer-events:none;
+    transition:opacity .25s ease; z-index:3;
+  }
+  .toast.show{ opacity:1; }
+
+  .confetti{
+    position:fixed; width:6px; height:6px; pointer-events:none; z-index:2;
+    top:0; left:0;
+  }
+</style>
+</head>
+<body>
+
+<div class="pattern"></div>
+
+<header>
+  <h1>انهي أحلى صوره؟</h1>
+  <div class="rule"></div>
+  <div class="status"><span class="dot offline" id="status-dot"></span><span id="status-text">جاري الاتصال...</span></div>
+  <div class="hint" id="conn-hint">تعذر الاتصال بقاعدة البيانات. لو بتفتح الملف مباشرة من جهازك، لازم تشغّله عن طريق سيرفر أو ترفعه على GitHub Pages عشان Firebase يشتغل — فتح الملف مباشرة (file://) بيمنع المتصفح من تحميل الوحدات البرمجية.</div>
+</header>
+
+<div class="leader-banner" id="leader-banner" style="display:none;">
+  <div class="leader-banner-inner">المتصدر الآن: <b id="leader-name">—</b><span id="leader-gap"></span></div>
+</div>
+
+<main>
+  <div class="cards">
+    <div class="card" id="card-abo-moahmed">
+      <div class="frame"><img class="photo" src="abo-mohamed.png" alt="ابو محمد المصري"></div>
+      <div class="name">ابو محمد المصري</div>
+      <div class="bar-track"><div class="bar-fill" id="bar-abo-moahmed" style="width:50%;"></div></div>
+      <div class="row-meta">
+        <span class="count" id="count-abo-moahmed">0</span>
+        <span class="pct" id="pct-abo-moahmed">0%</span>
+      </div>
+      <button class="vote-btn" id="btn-abo-moahmed" onclick="vote('abo-moahmed')">صوّت</button>
+    </div>
+
+    <div class="card" id="card-idris">
+      <div class="frame"><img class="photo" src="idris.png" alt="ادريس غامد"></div>
+      <div class="name">ادريس غامد</div>
+      <div class="bar-track"><div class="bar-fill" id="bar-idris" style="width:50%;"></div></div>
+      <div class="row-meta">
+        <span class="count" id="count-idris">0</span>
+        <span class="pct" id="pct-idris">0%</span>
+      </div>
+      <button class="vote-btn" id="btn-idris" onclick="vote('idris')">صوّت</button>
+    </div>
+  </div>
+
+  <div class="voted-note" id="voted-note" style="display:none;"></div>
+
+  <div class="actions">
+    <button class="icon-btn" onclick="copyLink()">انسخ الرابط</button>
+    <button class="icon-btn" onclick="copyResult()">انسخ النتيجة</button>
+    <button class="icon-btn" onclick="shareWhatsapp()">واتساب</button>
+    <button class="icon-btn" onclick="shareTwitter()">X</button>
+  </div>
+
+  <section class="stats">
+    <div class="stats-title">الإحصائيات</div>
+    <div class="stat-grid">
+      <div class="stat-cell">
+        <div class="stat-label">إجمالي الأصوات</div>
+        <div class="stat-value" id="stat-total">0</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">عدد زيارات الموقع</div>
+        <div class="stat-value" id="stat-visits">0</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">الفارق</div>
+        <div class="stat-value" id="stat-diff">0</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">المتصدر حاليًا</div>
+        <div class="stat-value" id="stat-leader">تعادل</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">آخر تحديث</div>
+        <div class="stat-value" id="stat-updated" style="font-size:14px; font-weight:500;">—</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">معدل التصويت</div>
+        <div class="stat-value" id="stat-rate" style="font-size:14px; font-weight:500;">—</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+مسمعش صوتك
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  const firebaseConfig = {
+    apiKey: "AIzaSyBmS01HQRh2sbZ1vLM4BqAiwjJWOUa2pDU",
+    authDomain: "vote41546.firebaseapp.com",
+    projectId: "vote41546",
+    storageBucket: "vote41546.firebasestorage.app",
+    messagingSenderId: "768913402420",
+    appId: "1:768913402420:web:61128371a619875dfb7861",
+    measurementId: "G-55C7EDRLZZ"
+  };
+
+  const VOTES_DOC = { collection: "votes", doc: "abo-moahmed_vs_idris" };
+  const STATS_DOC = { collection: "site", doc: "stats" };
+  const VOTED_KEY = 'vote_battle_has_voted';
+
+  let db = null;
+  let auth = null;
+  let votesRef = null;
+  let statsRef = null;
+  let onlineMode = false;
+  let currentUid = null;
+
+  const state = { abo-moahmed: 0, idris: 0, updatedAt: null, visits: 0 };
+  const displayed = { abo-moahmed: 0, idris: 0 };
+
+  function el(id){ return document.getElementById(id); }
+
+  function hasVotedLocal(){ return localStorage.getItem(VOTED_KEY); }
+  function markVotedLocal(name){ try{ localStorage.setItem(VOTED_KEY, name); }catch(e){} }
+
+  function lockButtons(choice){
+    el('btn-abo-moahmed').disabled = true;
+    el('btn-idris').disabled = true;
+    const noteEl = el('voted-note');
+    noteEl.style.display = 'block';
+    noteEl.textContent = choice
+      ? ('صوتك اتسجل بالفعل لـ ' + (choice === 'abo-moahmed' ? 'ابو محمد المصري' : 'ادريس غامد') + '.')
+      : 'صوتك اتسجل بالفعل.';
+  }
+
+  function animateCount(elId, from, to){
+    const node = el(elId);
+    const start = performance.now();
+    const dur = 500;
+    function step(now){
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const val = Math.round(from + (to - from) * eased);
+      node.textContent = val;
+      if(t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function render(){
+    const total = state.abo-moahmed + state.idris;
+    const pctK = total ? Math.round((state.abo-moahmed/total)*100) : 50;
+    const pctW = total ? Math.round((state.idris/total)*100) : 50;
+
+    animateCount('count-abo-moahmed', displayed.abo-moahmed, state.abo-moahmed);
+    animateCount('count-idris', displayed.idris, state.idris);
+    displayed.abo-moahmed = state.abo-moahmed;
+    displayed.idris = state.idris;
+
+    el('pct-abo-moahmed').textContent = pctK + '%';
+    el('pct-idris').textContent = pctW + '%';
+    el('bar-abo-moahmed').style.width = pctK + '%';
+    el('bar-idris').style.width = pctW + '%';
+
+    el('card-abo-moahmed').classList.toggle('leading', state.abo-moahmed > state.idris);
+    el('card-idris').classList.toggle('leading', state.idris > state.abo-moahmed);
+
+    el('stat-total').textContent = total;
+    el('stat-visits').textContent = state.visits;
+    el('stat-diff').textContent = Math.abs(state.abo-moahmed - state.idris);
+    el('stat-leader').textContent = state.abo-moahmed === state.idris
+      ? 'تعادل'
+      : (state.abo-moahmed > state.idris ? 'ابو محمد المصري' : 'ادريس غامد');
+    el('stat-updated').textContent = state.updatedAt
+      ? new Date(state.updatedAt).toLocaleTimeString('ar-EG')
+      : '—';
+    el('stat-rate').textContent = state.visits
+      ? Math.round((total / state.visits) * 100) + '%'
+      : '—';
+
+    const banner = el('leader-banner');
+    if(total === 0){
+      banner.style.display = 'none';
+    }else{
+      banner.style.display = 'block';
+      if(state.abo-moahmed === state.idris){
+        el('leader-name').textContent = 'تعادل';
+        el('leader-gap').textContent = '';
+      }else{
+        const leaderName = state.abo-moahmed > state.idris ? 'ابو محمد المصري' : 'ادريس غامد';
+        const gap = Math.abs(pctK - pctW);
+        el('leader-name').textContent = leaderName;
+        el('leader-gap').textContent = ' بفارق ' + gap + '%';
+      }
+    }
+  }
+
+  function showToast(msg){
+    const t = el('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  function setStatus(isOnline){
+    onlineMode = isOnline;
+    el('status-dot').classList.toggle('offline', !isOnline);
+    el('status-text').textContent = isOnline
+      ? 'متصل — الأصوات مشتركة مع كل الزوار'
+      : 'غير متصل — شغال في وضع محلي';
+    el('conn-hint').style.display = isOnline ? 'none' : 'block';
+  }
+
+  const LOCAL_KEY = 'vote_battle_abo-moahmed_idris';
+  function loadLocal(){
+    try{
+      const raw = localStorage.getItem(LOCAL_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return { abo-moahmed: 0, idris: 0, updatedAt: Date.now(), visits: 1 };
+  }
+  function saveLocal(v){
+    try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(v)); }catch(e){}
+  }
+
+  function confettiBurst(originEl){
+    const rect = originEl.getBoundingClientRect();
+    const colors = ['#c1622f', '#d99a75', '#211d18'];
+    for(let i = 0; i < 16; i++){
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.background = colors[i % colors.length];
+      c.style.left = (rect.left + rect.width/2) + 'px';
+      c.style.top = rect.top + 'px';
+      const angle = (Math.PI * 2 * i) / 16;
+      const dist = 60 + Math.random() * 40;
+      const dx = Math.cos(angle) * dist;
+      const dy = Math.sin(angle) * dist - 30;
+      c.animate([
+        { transform: 'translate(0,0)', opacity: 1 },
+        { transform: `translate(${dx}px, ${dy}px)`, opacity: 0 }
+      ], { duration: 650, easing: 'cubic-bezier(.2,.8,.3,1)' });
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 700);
+    }
+  }
+
+  function buildResultText(){
+    const total = state.abo-moahmed + state.idris;
+    const pctK = total ? Math.round((state.abo-moahmed/total)*100) : 50;
+    const pctW = total ? Math.round((state.idris/total)*100) : 50;
+    return `مين أحلى؟ ابو محمد المصري ${pctK}% - ادريس غامد ${pctW}% (من إجمالي ${total} صوت)`;
+  }
+
+  async function vote(name){
+    const btn = el('btn-' + name);
+
+    if(!onlineMode){
+      if(hasVotedLocal()) return;
+      el('btn-abo-moahmed').disabled = true;
+      el('btn-idris').disabled = true;
+      markVotedLocal(name);
+      confettiBurst(btn);
+      state[name] += 1;
+      state.updatedAt = Date.now();
+      saveLocal(state);
+      render();
+      lockButtons(name);
+      return;
+    }
+
+    if(!currentUid){
+      showToast('لسه بيتصل، جرب تاني بعد ثانية');
+      return;
+    }
+
+    el('btn-abo-moahmed').disabled = true;
+    el('btn-idris').disabled = true;
+
+    try{
+      const { doc, runTransaction, increment } = window.__fs;
+      const voterRef = doc(db, 'voters', currentUid);
+
+      await runTransaction(db, async (tx) => {
+        const voterSnap = await tx.get(voterRef);
+        if(voterSnap.exists()){
+          throw new Error('already-voted');
+        }
+        tx.set(voterRef, { choice: name, votedAt: Date.now() });
+        tx.update(votesRef, { [name]: increment(1), updatedAt: Date.now() });
+      });
+
+      confettiBurst(btn);
+      lockButtons(name);
+    }catch(e){
+      if(e && e.message === 'already-voted'){
+        lockButtons(null);
+      }else{
+        console.error(e);
+        showToast('حصل خطأ، جرب تاني');
+        el('btn-abo-moahmed').disabled = false;
+        el('btn-idris').disabled = false;
+      }
+    }
+  }
+  window.vote = vote;
+
+  window.copyLink = async function(){
+    try{
+      await navigator.clipboard.writeText(window.location.href);
+      showToast('اتنسخ رابط الموقع');
+    }catch(e){
+      showToast('مقدرتش أنسخ الرابط');
+    }
+  };
+
+  window.copyResult = async function(){
+    try{
+      await navigator.clipboard.writeText(buildResultText());
+      showToast('اتنسخت النتيجة');
+    }catch(e){
+      showToast('مقدرتش أنسخ النتيجة');
+    }
+  };
+
+  window.shareWhatsapp = function(){
+    const text = buildResultText() + ' ' + window.location.href;
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+  };
+
+  window.shareTwitter = function(){
+    const text = buildResultText();
+    window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(window.location.href), '_blank');
+  };
+
+  async function tryInitFirebase(){
+    try{
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+      const {
+        getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, increment, runTransaction
+      } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+      const {
+        getAuth, signInAnonymously, onAuthStateChanged
+      } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+
+      window.__fs = { doc, updateDoc, setDoc, increment, runTransaction };
+
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      auth = getAuth(app);
+      votesRef = doc(db, VOTES_DOC.collection, VOTES_DOC.doc);
+      statsRef = doc(db, STATS_DOC.collection, STATS_DOC.doc);
+
+      const votesSnap = await getDoc(votesRef);
+      if(!votesSnap.exists()){
+        await setDoc(votesRef, { abo-moahmed: 0, idris: 0, updatedAt: Date.now() });
+      }
+
+      const statsSnap = await getDoc(statsRef);
+      if(!statsSnap.exists()){
+        await setDoc(statsRef, { visits: 1 });
+      }else{
+        await updateDoc(statsRef, { visits: increment(1) });
+      }
+
+      onSnapshot(votesRef, (snap) => {
+        const data = snap.data() || { abo-moahmed: 0, idris: 0 };
+        state.abo-moahmed = data.abo-moahmed || 0;
+        state.idris = data.idris || 0;
+        state.updatedAt = data.updatedAt || Date.now();
+        render();
+      });
+
+      onSnapshot(statsRef, (snap) => {
+        const data = snap.data() || { visits: 0 };
+        state.visits = data.visits || 0;
+        render();
+      });
+
+      setStatus(true);
+
+      onAuthStateChanged(auth, async (user) => {
+        if(!user){
+          try{ await signInAnonymously(auth); }catch(e){ console.error(e); }
+          return;
+        }
+        currentUid = user.uid;
+        try{
+          const voterRef = doc(db, 'voters', currentUid);
+          const voterSnap = await getDoc(voterRef);
+          if(voterSnap.exists()){
+            lockButtons(voterSnap.data().choice || null);
+          }
+        }catch(e){
+          console.error(e);
+        }
+      });
+
+      if(!auth.currentUser){
+        signInAnonymously(auth).catch((e) => console.error(e));
+      }
+    }catch(e){
+      console.error(e);
+      Object.assign(state, loadLocal());
+      state.visits += 1;
+      saveLocal(state);
+      setStatus(false);
+      render();
+      if(hasVotedLocal()) lockButtons(hasVotedLocal());
+    }
+  }
+
+  tryInitFirebase();
+</script>
+</body>
+</html>
