@@ -47,8 +47,8 @@
     position:relative; z-index:1;
   }
   .eyebrow{
-    font-size:12px; letter-spacing:0.22em; color:var(--accent-dim);
-    text-transform:uppercase; margin-bottom:14px;
+    font-size:12px; color:var(--accent-dim);
+    margin-bottom:14px;
   }
   h1{
     font-family:'Reem Kufi', sans-serif;
@@ -192,7 +192,7 @@
   }
   .stats-title{
     font-family:'Reem Kufi', sans-serif;
-    font-size:13px; letter-spacing:0.14em; text-transform:uppercase;
+    font-size:13px;
     color:var(--accent-dim); margin-bottom:16px; text-align:center;
   }
   .stat-grid{
@@ -332,8 +332,8 @@
   let onlineMode = false;
   let currentUid = null;
 
-  const state = { abo-moahmed: 0, idris: 0, updatedAt: null, visits: 0 };
-  const displayed = { abo-moahmed: 0, idris: 0 };
+  const state = { 'abo-moahmed': 0, idris: 0, updatedAt: null, visits: 0 };
+  const displayed = { 'abo-moahmed': 0, idris: 0 };
 
   function el(id){ return document.getElementById(id); }
 
@@ -365,13 +365,13 @@
   }
 
   function render(){
-    const total = state.abo-moahmed + state.idris;
-    const pctK = total ? Math.round((state.abo-moahmed/total)*100) : 50;
-    const pctW = total ? Math.round((state.idris/total)*100) : 50;
+    const total = state['abo-moahmed'] + state.idris;
+    const pctK = total ? Math.round((state['abo-moahmed']/total)*100) : 50;
+    const pctW = total ? 100 - pctK : 50;
 
-    animateCount('count-abo-moahmed', displayed.abo-moahmed, state.abo-moahmed);
+    animateCount('count-abo-moahmed', displayed['abo-moahmed'], state['abo-moahmed']);
     animateCount('count-idris', displayed.idris, state.idris);
-    displayed.abo-moahmed = state.abo-moahmed;
+    displayed['abo-moahmed'] = state['abo-moahmed'];
     displayed.idris = state.idris;
 
     el('pct-abo-moahmed').textContent = pctK + '%';
@@ -379,15 +379,15 @@
     el('bar-abo-moahmed').style.width = pctK + '%';
     el('bar-idris').style.width = pctW + '%';
 
-    el('card-abo-moahmed').classList.toggle('leading', state.abo-moahmed > state.idris);
-    el('card-idris').classList.toggle('leading', state.idris > state.abo-moahmed);
+    el('card-abo-moahmed').classList.toggle('leading', state['abo-moahmed'] > state.idris);
+    el('card-idris').classList.toggle('leading', state.idris > state['abo-moahmed']);
 
     el('stat-total').textContent = total;
     el('stat-visits').textContent = state.visits;
-    el('stat-diff').textContent = Math.abs(state.abo-moahmed - state.idris);
-    el('stat-leader').textContent = state.abo-moahmed === state.idris
+    el('stat-diff').textContent = Math.abs(state['abo-moahmed'] - state.idris);
+    el('stat-leader').textContent = state['abo-moahmed'] === state.idris
       ? 'تعادل'
-      : (state.abo-moahmed > state.idris ? 'ابو محمد المصري' : 'ادريس غامد');
+      : (state['abo-moahmed'] > state.idris ? 'ابو محمد المصري' : 'ادريس غامد');
     el('stat-updated').textContent = state.updatedAt
       ? new Date(state.updatedAt).toLocaleTimeString('ar-EG')
       : '—';
@@ -400,11 +400,11 @@
       banner.style.display = 'none';
     }else{
       banner.style.display = 'block';
-      if(state.abo-moahmed === state.idris){
+      if(state['abo-moahmed'] === state.idris){
         el('leader-name').textContent = 'تعادل';
         el('leader-gap').textContent = '';
       }else{
-        const leaderName = state.abo-moahmed > state.idris ? 'ابو محمد المصري' : 'ادريس غامد';
+        const leaderName = state['abo-moahmed'] > state.idris ? 'ابو محمد المصري' : 'ادريس غامد';
         const gap = Math.abs(pctK - pctW);
         el('leader-name').textContent = leaderName;
         el('leader-gap').textContent = ' بفارق ' + gap + '%';
@@ -434,7 +434,7 @@
       const raw = localStorage.getItem(LOCAL_KEY);
       if(raw) return JSON.parse(raw);
     }catch(e){}
-    return { abo-moahmed: 0, idris: 0, updatedAt: Date.now(), visits: 1 };
+    return { 'abo-moahmed': 0, idris: 0, updatedAt: Date.now(), visits: 1 };
   }
   function saveLocal(v){
     try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(v)); }catch(e){}
@@ -463,9 +463,9 @@
   }
 
   function buildResultText(){
-    const total = state.abo-moahmed + state.idris;
-    const pctK = total ? Math.round((state.abo-moahmed/total)*100) : 50;
-    const pctW = total ? Math.round((state.idris/total)*100) : 50;
+    const total = state['abo-moahmed'] + state.idris;
+    const pctK = total ? Math.round((state['abo-moahmed']/total)*100) : 50;
+    const pctW = total ? 100 - pctK : 50;
     return `مين أحلى؟ ابو محمد المصري ${pctK}% - ادريس غامد ${pctW}% (من إجمالي ${total} صوت)`;
   }
 
@@ -570,7 +570,7 @@
 
       const votesSnap = await getDoc(votesRef);
       if(!votesSnap.exists()){
-        await setDoc(votesRef, { abo-moahmed: 0, idris: 0, updatedAt: Date.now() });
+        await setDoc(votesRef, { 'abo-moahmed': 0, idris: 0, updatedAt: Date.now() });
       }
 
       const statsSnap = await getDoc(statsRef);
@@ -581,8 +581,8 @@
       }
 
       onSnapshot(votesRef, (snap) => {
-        const data = snap.data() || { abo-moahmed: 0, idris: 0 };
-        state.abo-moahmed = data.abo-moahmed || 0;
+        const data = snap.data() || { 'abo-moahmed': 0, idris: 0 };
+        state['abo-moahmed'] = data['abo-moahmed'] || 0;
         state.idris = data.idris || 0;
         state.updatedAt = data.updatedAt || Date.now();
         render();
