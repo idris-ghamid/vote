@@ -233,7 +233,11 @@
   <h1>انهي أحلى صوره؟</h1>
   <div class="rule"></div>
   <div class="status"><span class="dot offline" id="status-dot"></span><span id="status-text">جاري الاتصال...</span></div>
-  <div class="hint" id="conn-hint">تعذر الاتصال بقاعدة البيانات. لو بتفتح الملف مباشرة من جهازك، لازم تشغّله عن طريق سيرفر أو ترفعه على GitHub Pages عشان Firebase يشتغل — فتح الملف مباشرة (file://) بيمنع المتصفح من تحميل الوحدات البرمجية.</div>
+  <div class="hint" id="conn-hint">
+    <div id="conn-error" style="font-size:13px;color:var(--accent);margin-bottom:10px;"></div>
+    <div id="conn-advice"></div>
+    <button id="retry-btn" style="margin-top:12px;background:var(--accent);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:12px;">حاول الاتصال تاني</button>
+  </div>
 </header>
 
 <div class="leader-banner" id="leader-banner" style="display:none;">
@@ -420,13 +424,41 @@
     setTimeout(() => t.classList.remove('show'), 1800);
   }
 
-  function setStatus(isOnline){
+  function setStatus(isOnline, errorMsg){
     onlineMode = isOnline;
     el('status-dot').classList.toggle('offline', !isOnline);
     el('status-text').textContent = isOnline
       ? 'متصل — الأصوات مشتركة مع كل الزوار'
       : 'غير متصل — شغال في وضع محلي';
-    el('conn-hint').style.display = isOnline ? 'none' : 'block';
+
+    const hint = el('conn-hint');
+    const errDiv = el('conn-error');
+    const adviceDiv = el('conn-advice');
+    const retryBtn = el('retry-btn');
+
+    if(isOnline){
+      hint.style.display = 'none';
+    }else{
+      hint.style.display = 'block';
+      if(errorMsg){
+        errDiv.textContent = '❌ ' + errorMsg;
+        // تشخيص حسب نوع الخطأ
+        if(errorMsg.includes('Missing or insufficient permissions') || errorMsg.includes('permission_denied')){
+          adviceDiv.innerHTML = '⚠️ <b>قواعد الأمان (Security Rules) ممنوعة</b> — روح على <b>Firebase Console</b> ← Firestore Database ← Rules وحط القواعد اللي أنا قولتلك عليها، واضغط <b>Publish</b>.';
+        }else if(errorMsg.includes('blocked') || errorMsg.includes('BLOCKED')){
+          adviceDiv.innerHTML = '🔒 <b>إضافة مانع إعلانات (AdBlock/uBlock)</b> بتقطع الاتصال — جرب تفتح الموقع في Incognito mode أو عطل الإضافة مؤقتًا.';
+        }else if(errorMsg.includes('auth') || errorMsg.includes('unauthenticated')){
+          adviceDiv.innerHTML = '🔑 <b>تسجيل الدخول المجهول مش مفعّل</b> — روح Firebase Console ← Authentication ← Sign-in method ← فعّل <b>Anonymous</b>.';
+        }else if(errorMsg.includes('network') || errorMsg.includes('Network')){
+          adviceDiv.innerHTML = '🌐 <b>مشكلة في الشبكة</b> — تأكد من اتصالك بالإنترنت أو جرب تعمل <b>Disable cache</b> في المتصفح (F12 ← Network ← Disable cache).';
+        }else{
+          adviceDiv.innerHTML = 'تفاصيل: <code style="font-size:11px;word-break:break-word;">' + errorMsg.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</code>';
+        }
+      }else{
+        errDiv.textContent = '';
+        adviceDiv.textContent = '';
+      }
+    }
   }
 
   const LOCAL_KEY = 'vote_battle_abo-moahmed_idris';
@@ -622,11 +654,33 @@
       Object.assign(state, loadLocal());
       state.visits += 1;
       saveLocal(state);
-      setStatus(false);
+      const errMsg = e.message || e.code || 'خطأ غير معروف في الاتصال';
+      setStatus(false, errMsg);
       render();
       if(hasVotedLocal()) lockButtons(hasVotedLocal());
     }
   }
+
+  // إعادة المحاولة عند الضغط على الزر
+  window.retryFirebase = function(){
+    const hint = el('conn-hint');
+    const retryBtn = el('retry-btn');
+    retryBtn.textContent = 'جاري المحاولة...';
+    retryBtn.disabled = true;
+    hint.style.display = 'none';
+    el('status-text').textContent = 'جاري الاتصال...';
+    tryInitFirebase();
+    setTimeout(() => {
+      retryBtn.textContent = 'حاول الاتصال تاني';
+      retryBtn.disabled = false;
+    }, 5000);
+  };
+
+  // ربط زر إعادة المحاولة
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = el('retry-btn');
+    if(btn) btn.onclick = window.retryFirebase;
+  });
 
   tryInitFirebase();
 </script>
